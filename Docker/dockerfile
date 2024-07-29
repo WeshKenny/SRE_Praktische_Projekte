@@ -1,0 +1,13 @@
+FROM us-docker.pkg.dev/google-samples/containers/gke/gb-frontend:v5
+
+ENV PRAKTIKUM=true
+
+RUN apt update && apt upgrade -y \ 
+&& apt install redis-tools 
+
+
+
+
+
+
+

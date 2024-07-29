@@ -1,0 +1,50 @@
+version: "3.8"
+services:
+  frontend:
+    image: localhost:5000/v5-nhe    
+    ports: 
+      - "8080:80"
+    volumes:
+      - /home/rdij/index.html:/var/www/html/index.html:ro
+    depends_on:
+      - redis-leader
+      - redis-follower
+    networks:
+      Webapp:
+        ipv4_address: 172.28.1.3
+    environment:
+      - REDIS_LEADER_SERVICE_HOST=redis-leader
+      - REDIS_FOLLOWER_SERVICE_HOST=redis-follower
+
+  redis-leader:
+    image:  docker.io/redis:6.0.5
+    restart: always
+    ports: 
+      - "6379:6379"
+    volumes:
+      - /home/rdij/Documents/redis_data:/data
+    user: redis
+    networks:
+      Webapp:
+        ipv4_address: 172.28.0.3
+      
+  redis-follower:
+    image: gcr.io/google_samples/gb-redis-follower:v2
+    restart: always
+    depends_on:
+      - redis-leader
+    volumes:
+      - /home/rdij/Documents/redis_follower_data:/data
+    networks:
+      Webapp:
+        ipv4_address: 172.28.0.4
+
+networks:
+  Webapp:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+  
+  
