@@ -1,6 +1,7 @@
 version: "3.8"
+name: guestbook_app
 services:
-  frontend:
+  Frontend:
     image: localhost:5000/v5-nhe    
     ports: 
       - "8080:80"
@@ -11,7 +12,7 @@ services:
       - redis-follower
     networks:
       Webapp:
-        ipv4_address: 172.28.1.3
+      backend:
     environment:
       - REDIS_LEADER_SERVICE_HOST=redis-leader
       - REDIS_FOLLOWER_SERVICE_HOST=redis-follower
@@ -25,8 +26,7 @@ services:
       - /home/rdij/Documents/redis_data:/data
     user: redis
     networks:
-      Webapp:
-        ipv4_address: 172.28.0.3
+      backend:
       
   redis-follower:
     image: gcr.io/google_samples/gb-redis-follower:v2
@@ -35,16 +35,14 @@ services:
       - redis-leader
     volumes:
       - /home/rdij/Documents/redis_follower_data:/data
+    ports:
+      - "6590:6379"
     networks:
-      Webapp:
-        ipv4_address: 172.28.0.4
+      backend:
 
 networks:
   Webapp:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.28.0.0/16
+  backend:
 
   
   
