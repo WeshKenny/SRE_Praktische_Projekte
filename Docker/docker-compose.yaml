@@ -20,8 +20,6 @@ services:
   redis-leader:
     image:  docker.io/redis:6.0.5
     restart: always
-    ports: 
-      - "6379:6379"
     volumes:
       - /home/rdij/Documents/redis_data:/data
     user: redis
@@ -35,8 +33,6 @@ services:
       - redis-leader
     volumes:
       - /home/rdij/Documents/redis_follower_data:/data
-    ports:
-      - "6590:6379"
     networks:
       backend:
 
