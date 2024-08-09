@@ -1,0 +1,114 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "2024-08-08T14:24:12Z"
+  labels:
+    app: web
+    run: "101"
+  name: "101"
+  namespace: default
+  resourceVersion: "109442"
+  uid: 6fd2695d-eefd-43b4-aaf1-5e0aa82e0869
+spec:
+  containers:
+  - image: localhost:5000/v5-nhe
+    imagePullPolicy: Always
+    name: "101"
+    ports:
+    - containerPort: 80
+      protocol: TCP
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-z4t9r
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: lima-rancher-desktop
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: kube-api-access-z4t9r
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2024-08-09T06:29:15Z"
+    status: "True"
+    type: PodReadyToStartContainers
+  - lastProbeTime: null
+    lastTransitionTime: "2024-08-08T14:24:12Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2024-08-09T06:30:21Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2024-08-09T06:30:21Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2024-08-08T14:24:12Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: docker://3d459d93c77a543013995c72411a947444e10d3dcd5160a631cea37d90d0b946
+    image: weshkenny/praktische_aufgaben:latest
+    imageID: docker-pullable://weshkenny/praktische_aufgaben@sha256:4536f4b671a4e1f311524ece86fa7637b847ed3f57d54ee196682b2cca4722f7
+    lastState:
+      terminated:
+        containerID: docker://40a6e67d3d888eab20a5ad826daf25b091a8ad24b886d1cb6e7d76bb26545c43
+        exitCode: 255
+        finishedAt: "2024-08-09T06:28:49Z"
+        reason: Error
+        startedAt: "2024-08-08T14:24:13Z"
+    name: "101"
+    ready: true
+    restartCount: 1
+    started: true
+    state:
+      running:
+        startedAt: "2024-08-09T06:30:21Z"
+  hostIP: 192.168.5.15
+  hostIPs:
+  - ip: 192.168.5.15
+  phase: Running
+  podIP: 10.42.0.136
+  podIPs:
+  - ip: 10.42.0.136
+  qosClass: BestEffort
+  startTime: "2024-08-08T14:24:12Z"
