@@ -1,0 +1,37 @@
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+# services "my-service" was not valid:
+# * patch: Invalid value: "map[spec:map[selector:map[name:101]]]": cannot convert int64 to string
+#
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2024-08-09T11:55:08Z"
+  labels:
+    app: my-service
+  name: my-service
+  namespace: default
+spec:
+  clusterIP: 10.43.73.190
+  clusterIPs:
+  - 10.43.73.190
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: 5678-7050
+    nodePort: 30526
+    port: 5678
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: web
+    run: "101"
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}
