@@ -1,32 +1,27 @@
 apiVersion: apps/v1
-kind: ReplicaSet
+kind: Deployment
 metadata:
-  name: auftrag2-replicaset
+  name: auftrag7-deployment
   labels:
     app: guestbook
     tier: frontend
 spec:
-  # modify replicas according to your case
   replicas: 3
   selector:
     matchLabels:
       tier: frontend
+      app: guestbook_configmap
   template:
     metadata:
       labels:
         tier: frontend
+        app: guestbook_configmap
     spec:
       containers:
       - name: pod-auftrag2
         image: localhost:5000/v5-nhe
-
-        # Auftrag 6 Enviroment Variables hinzufügen
-        env:
-        - name: DEMO_ENV
-          value: "Es hat funktioniert"
-        - name: TEST
-          value: "true"
-
+        ports:
+        - containerPort: 80
         # Auftrag 7 Config Map Mount
         volumeMounts:
         - name: html
