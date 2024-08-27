@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auftrag10-deployment
+  labels:
+    app: guestbook
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: frontend
+      app: guestbook_configmap
+  template:
+    metadata:
+      labels:
+        tier: frontend
+        app: guestbook_configmap
+    spec:
+      containers:
+      - name: pod-auftrag10
+        image: localhost:5000/v5-nhe
+        ports:
+        - containerPort: 80
+        securityContext:
+          capabilities:
+            runAsNonRoot: true

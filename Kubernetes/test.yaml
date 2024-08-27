@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: non-root
+  labels: 
+    tier: frontend
+    app: guestbook
+spec:
+  containers:
+  - name: pod-auftrag10
+  # Anderes Nginx image, damit man es mit runAsNonRoot laufen kann.
+    image: nginxinc/nginx-unprivileged 
+    ports:
+    - containerPort: 80
+    securityContext:
+      runAsNonRoot: true
