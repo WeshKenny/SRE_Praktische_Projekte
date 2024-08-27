@@ -1,27 +1,19 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Pod
 metadata:
-  name: auftrag10-deployment
-  labels:
-    app: guestbook
+  name: non-root
+  labels: 
     tier: frontend
+    app: guestbook
 spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      tier: frontend
-      app: guestbook_configmap
-  template:
-    metadata:
-      labels:
-        tier: frontend
-        app: guestbook_configmap
-    spec:
-      containers:
-      - name: pod-auftrag10
-        image: localhost:5000/v5-nhe
-        ports:
-        - containerPort: 80
-        securityContext:
-          capabilities:
-            runAsNonRoot: true
+  containers:
+  - name: pod-auftrag10
+  # Anderes Nginx image, damit man es mit runAsNonRoot laufen kann.
+    image: nginxinc/nginx-unprivileged 
+    ports:
+    - containerPort: 80
+    securityContext:
+      runAsNonRoot: true
+    # 2.Teil, Damit werden alle Capabilities entfernt.
+     capabilities:
+        drop: ["ALL"] 
