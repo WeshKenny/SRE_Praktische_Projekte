@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: guestbook
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: frontend
+      app: guestbook
+  template:
+    metadata:
+      labels:
+        tier: frontend
+        app: guestbook
+    spec:
+      containers:
+      - name: guestbook
+        image: localhost:5000/v5-nhe
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 0.25 
+            memory: 500Mi
+          limits:
+            cpu: 0.5
+            memory: 1Gi
+            
+      serviceAccountName: frontend-sa
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-follower
+  labels:
+    app: redis-follower
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: backend
+      app: redis-follower
+  template:
+    metadata:
+      labels:
+        tier: backend
+        app: redis-follower
+    spec:
+      containers:
+      - name: redis-follower
+        image: gcr.io/google_samples/gb-redis-follower:v2
+      serviceAccountName: redis-sa
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-leader
+  labels:
+    tier: backend
+    app: redis-leader
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-leader
+  template:
+    metadata:
+      labels:
+        tier: backend
+        app: redis-leader
+    spec:
+      containers:
+      - name: redis-leader
+        image: docker.io/redis:6.0.5
+        ports:
+        - containerPort: 6379
+      serviceAccountName: redis-sa
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontend-sa
+  namespace: default
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: redis-sa
+  namespace: default
+
