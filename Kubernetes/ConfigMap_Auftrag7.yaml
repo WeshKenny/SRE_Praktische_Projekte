@@ -29,3 +29,45 @@ data:
       </div>
     </body>
     </html>
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: auftrag2-replicaset
+  labels:
+    app: guestbook
+    tier: frontend
+spec:
+  # modify replicas according to your case
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: pod-auftrag2
+        image: localhost:5000/v5-nhe
+        ports:
+        - containerPort: 80
+          
+        # Auftrag 6 Enviroment Variables hinzufügen
+        env:
+        - name: DEMO_ENV
+          value: "Es hat funktioniert"
+        - name: TEST
+          value: "true"
+
+        # Auftrag 7 Config Map Mount
+        volumeMounts:
+        - name: html
+          mountPath: /var/www/html
+          readOnly: false
+      volumes:
+      - name: html
+        configMap:
+          name: html-configmap
+

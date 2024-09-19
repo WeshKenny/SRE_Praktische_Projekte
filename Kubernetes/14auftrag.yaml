@@ -19,16 +19,11 @@ spec:
     spec:
       containers:
       - name: guestbook
-        image: localhost:5000/v5-nhe
+        image: 172.17.0.1:5000/v5-nhe
         ports:
         - containerPort: 80
-        command: ["tail", "/dev/zero"]
-        resources:
-          requests:
-            cpu: 0.25 
-            memory: 500Mi
-          limits:
-            cpu: 0.5
-            memory: 1Gi
-
-      
+      tolerations:
+      - key: "tier"
+        operator: "Equal"
+        value: "frontend"
+        effect: "NoSchedule"

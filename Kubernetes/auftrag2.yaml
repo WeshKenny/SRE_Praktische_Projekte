@@ -20,18 +20,4 @@ spec:
       - name: pod-auftrag2
         image: localhost:5000/v5-nhe
 
-        # Auftrag 6 Enviroment Variables hinzufügen
-        env:
-        - name: DEMO_ENV
-          value: "Es hat funktioniert"
-        - name: TEST
-          value: "true"
 
-        # Auftrag 7 Config Map Mount
-        volumeMounts:
-        - name: html
-          mountPath: /var/www/html
-      volumes:
-      - name: html
-        configMap:
-          name: html-configmap

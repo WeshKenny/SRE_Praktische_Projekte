@@ -14,6 +14,6 @@ spec:
     - containerPort: 80
     securityContext:
       runAsNonRoot: true
-    # 2.Teil, Damit werden alle Capabilities entfernt.
-     capabilities:
+      # 2.Teil, Damit werden alle Capabilities entfernt.
+      capabilities:
         drop: ["ALL"] 
