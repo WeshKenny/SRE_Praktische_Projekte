@@ -22,10 +22,10 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: node.kubernetes.io/instance-type # Zweite Variante um Pods auf den Nodes zu verteilen.
-                operator: In  #sagt aus, dass das Value auch so im Label definiert ist.
+              - key: node-role.kubernetes.io/control-plane # Label vom Controle-Plane
+                operator: NotIn  # Pods werden nicht auf einem Node mit diesem Label platziert.
                 values: 
-                - k3s
+                - "true"
       containers:
       - name: guestbook
         image: 172.17.0.1:5000/v5-nhe

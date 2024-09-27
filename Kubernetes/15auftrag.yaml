@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: backend
+      app: redis-leader
+  template:
+    metadata:
+      labels:
+        tier: backend
+        app: redis-leader
+    spec:
+      containers:
+      - name: redis-leader
+        image: docker.io/redis:6.0.5
+        ports:
+        - containerPort: 6379
+      - name: redis-dumps
+        image: redis
+        command: ["/bin/sh", "-c"]     # Startet eine Shell und gibt die nächfolgenden Befehle dort ein.
+        args:
+        - >
+          while true; do
+            sleep 60;  # Zeit zwischen den Dumps
+            redis-cli -h 127.0.0.1 -p 6379 SAVE;  # Erstelle einen Dump
+          done

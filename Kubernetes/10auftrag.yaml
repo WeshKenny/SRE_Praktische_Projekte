@@ -11,7 +11,7 @@ spec:
   # Anderes Nginx image, damit man es mit runAsNonRoot laufen kann.
     image: nginxinc/nginx-unprivileged 
     ports:
-    - containerPort: 80
+    - containerPort: 8080
     securityContext:
       runAsNonRoot: true
       # 2.Teil, Damit werden alle Capabilities entfernt.
