@@ -21,7 +21,7 @@ spec:
       - name: guestbook 
         image: nginxinc/nginx-unprivileged # Non-Root Nginx image verwenden.
         ports:
-        - containerPort: 80
+        - containerPort: 8080  # Mit diesem Image muss der Container auf Port 8080 laufen anstatt 80.
 
         # Enviroment Variabeln hinzugefügt
         env:
@@ -46,7 +46,7 @@ spec:
         # ConfigMap wird gemounted
         volumeMounts:
         - name: html
-          mountPath: /var/www/html
+          mountPath: /usr/share/nginx/html # Pfad musste angepasst werden
           readOnly: false
       # Configmap mounten    
       volumes:
