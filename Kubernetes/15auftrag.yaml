@@ -1,3 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-leader
+spec:
+  selector:
+    app: redis-leader
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -29,5 +42,5 @@ spec:
         - >
           while true; do
             sleep 60;  # Zeit zwischen den Dumps
-            redis-cli -h 127.0.0.1 -p 6379 SAVE;  # Erstelle einen Dump
+            redis-cli -h redis-leader -p 6379 SAVE;  # Erstellt einen Dump auf dem Redis-Leader Container
           done

@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: guestbookapp
+  labels:
+    version: gesamte_version
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: frontend
+      app: guestbook_app
+  template:
+    metadata:
+      labels:
+        tier: frontend
+        app: guestbook_app
+    spec:
+      containers:
+      - name: guestbook 
+        image: nginxinc/nginx-unprivileged # Non-Root Nginx image verwenden.
+        ports:
+        - containerPort: 80
+
+        # Enviroment Variabeln hinzugefügt
+        env:
+        - name: Guestbook
+          value: Das ist die Guestbook version mit allen Aufträgen in einem.
+        - name: Status
+          value: Die Enviroment Variable funktioniert 
+        
+        # Enviroment Variabel von Secret hinzufügen
+        - name: Secret
+          valueFrom:
+            secretKeyRef:
+              name: secret-guestbook
+              key: SecretEnv
+
+        # Alle Capabilities werden entfernt
+        securityContext:
+          runAsNonRoot: true
+          capabilities:
+            drop: ["ALL"]
+  
+        # ConfigMap wird gemounted
+        volumeMounts:
+        - name: html
+          mountPath: /var/www/html
+          readOnly: false
+      # Configmap mounten    
+      volumes:
+      - name: html
+        configMap:
+          name: html-configmap
+        
