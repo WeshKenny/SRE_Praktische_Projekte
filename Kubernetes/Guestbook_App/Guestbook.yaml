@@ -17,6 +17,7 @@ spec:
         tier: frontend
         app: guestbook_app
     spec:
+      serviceAccountName: serviceaccountgb # Serviceaccount Hinzugefügt.
       containers:
       - name: guestbook 
         image: nginxinc/nginx-unprivileged # Non-Root Nginx image verwenden.
