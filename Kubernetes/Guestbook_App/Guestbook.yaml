@@ -23,6 +23,15 @@ spec:
         image: nginxinc/nginx-unprivileged # Non-Root Nginx image verwenden.
         ports:
         - containerPort: 8080  # Mit diesem Image muss der Container auf Port 8080 laufen anstatt 80.
+        
+        # Resource Requirements
+        resources:
+          requests:
+            cpu: 0.25 
+            memory: 500Mi
+          limits:
+            cpu: 0.5
+            memory: 1Gi
 
         # Enviroment Variabeln hinzugefügt
         env:
@@ -49,6 +58,8 @@ spec:
         - name: html
           mountPath: /usr/share/nginx/html # Pfad musste angepasst werden
           readOnly: false
+
+        
       # Configmap mounten    
       volumes:
       - name: html
