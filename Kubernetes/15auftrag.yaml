@@ -16,7 +16,7 @@ kind: Deployment
 metadata:
   name: backend
   labels:
-    
+    usage: forfrontend
     tier: backend
 spec:
   replicas: 1
