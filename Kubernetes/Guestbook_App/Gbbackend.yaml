@@ -1,0 +1,49 @@
+# Service für backend
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-leader
+spec:
+  selector:
+    app: redis-leader
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    usage: forfrontend
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: backend
+      app: redis-leader
+  template:
+    metadata:
+      labels:
+        tier: backend
+        app: redis-leader
+    spec:
+      serviceAccountName: backendsa # Service Account hinzufügen
+      containers:
+      - name: redis-leader
+        image: docker.io/redis:6.0.5
+        ports:
+        - containerPort: 6379
+      - name: redis-dumps
+        image: redis
+        command: ["/bin/sh", "-c"]     # Startet eine Shell und gibt die nächfolgenden Befehle dort ein.
+        # Hier wird alle 60 Sekunden ein Backup erstellt vom Redis-Leader Container
+        args:             
+        - >
+          while true; do
+            sleep 60;  # Zeit zwischen den Dumps
+            redis-cli -h redis-leader -p 6379 SAVE;  # Erstellt einen Dump auf dem Redis-Leader Container
+          done
