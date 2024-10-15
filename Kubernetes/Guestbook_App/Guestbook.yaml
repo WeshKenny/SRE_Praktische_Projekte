@@ -1,3 +1,17 @@
+# Service für frontend
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  selector:
+    app: guestbook_app
+    tier: frontend
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,7 +37,7 @@ spec:
         image: nginxinc/nginx-unprivileged # Non-Root Nginx image verwenden.
         ports:
         - containerPort: 8080  # Mit diesem Image muss der Container auf Port 8080 laufen anstatt 80.
-        
+
         # Resource Requirements
         resources:
           requests:
@@ -58,8 +72,13 @@ spec:
         - name: html
           mountPath: /usr/share/nginx/html # Pfad musste angepasst werden
           readOnly: false
+      
+      # Init Container hinzufügen
+      initContainers:
+      - name: redis-test
+        image: redis:alpine
+        command: ['sh', '-c', 'redis-cli -h redis-service -p 6379 ping | grep PONG']
 
-        
       # Configmap mounten    
       volumes:
       - name: html
