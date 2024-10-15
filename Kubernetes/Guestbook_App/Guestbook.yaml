@@ -72,7 +72,30 @@ spec:
         - name: html
           mountPath: /usr/share/nginx/html # Pfad musste angepasst werden
           readOnly: false
-      
+        
+        # LivenessProbe hinzufügen
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 3
+
+        # Readiness Probes hinzufügen
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 10
+
+        # Startup Probe Hinzufügen
+        startupProbe:
+          httpGet: 
+            path: /
+            port: 8080
+          failureThreshold: 20
+          periodSeconds: 10
+         
       # Init Container hinzufügen
       initContainers:
       - name: redis-test
