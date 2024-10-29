@@ -1,0 +1,113 @@
+# Service für frontend
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service-v5
+spec:
+  selector:
+    app: guestbook_app
+    tier: frontend
+    version: v5
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: guestbookapp-v5
+  labels:
+    version: v5
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: frontend
+      app: guestbook_app
+      version: v5
+  template:
+    metadata:
+      labels:
+        tier: frontend
+        app: guestbook_app
+        version: v5
+    spec:
+      serviceAccountName: serviceaccountgb # Serviceaccount Hinzugefügt.
+      containers:
+      - name: guestbook 
+        image: 172.17.0.1:5000/v5-nhe:v5.1
+        ports:
+        - containerPort: 80  
+
+        # Resource Requirements
+        resources:
+          requests:
+            cpu: 0.25 
+            memory: 500Mi
+          limits:
+            cpu: 0.5
+            memory: 1Gi
+
+        # Enviroment Variabeln hinzugefügt
+        env:
+        - name: Guestbook
+          value: Das ist die Guestbook version mit allen Aufträgen in einem.
+        - name: Status
+          value: Die Enviroment Variable funktioniert 
+        
+        # Enviroment Variabel von Secret hinzufügen
+        - name: Secret
+          valueFrom:
+            secretKeyRef:
+              name: secret-guestbook
+              key: SecretEnv
+
+        # Alle Capabilities werden entfernt
+        securityContext:
+          runAsNonRoot: false
+          capabilities:
+            drop: ["ALL"]
+  
+        # ConfigMap wird gemounted
+        volumeMounts:
+        - name: html
+          mountPath: /usr/share/nginx/html # Pfad musste angepasst werden
+          readOnly: false
+        
+        # LivenessProbe hinzufügen
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 3
+
+        # Readiness Probes hinzufügen
+        readinessProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 10
+
+        # Startup Probe Hinzufügen
+        startupProbe:
+          httpGet: 
+            path: /
+            port: 80
+          failureThreshold: 15
+          periodSeconds: 10
+         
+      # Init Container hinzufügen
+      initContainers:
+      - name: redis-test
+        image: redis:alpine
+        command: ['sh', '-c', 'redis-cli -h redis-service -p 6379 ping | grep PONG']
+
+      # Configmap mounten    
+      volumes:
+      - name: html
+        configMap:
+          name: html-configmap
+        
