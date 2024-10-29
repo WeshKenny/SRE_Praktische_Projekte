@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: dbsize
+spec:
+  template:
+    spec:
+      containers:
+      - name: dbsize
+        image: redis:alpine
+        command: ["sh", "-c", "redis-cli -h redis-service -p 6379 MEMORY STATS"]
+      restartPolicy: Never
+  backoffLimit: 4
+
