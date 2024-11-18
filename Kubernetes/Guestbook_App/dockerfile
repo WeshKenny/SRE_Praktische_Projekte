@@ -1,3 +1,4 @@
 FROM nginxinc/nginx-unprivileged
 
-COPY ./html/. /usr/share/nginx/html
+COPY ./html/. /usr/share/nginx/html 
+COPY ./html/scripts/. /usr/share/nginx
