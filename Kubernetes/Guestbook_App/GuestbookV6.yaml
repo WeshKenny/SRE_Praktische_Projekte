@@ -13,7 +13,7 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 8080
-      nodePort: 30030
+      nodePort: 30030  # port-forward service/frontend-service-v6 [Port-Laptop]:[Port-Container] 8080:30030
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -105,7 +105,7 @@ spec:
       initContainers:
       - name: redis-test
         image: redis:alpine
-        command: ['sh', '-c', 'redis-cli -h redis-service -p 6379 ping | grep PONG']
+        command: ['sh', '-c', 'redis-cli -h redis-service -p 6000 ping | grep PONG']
 
       # Configmap mounten    
       volumes:
