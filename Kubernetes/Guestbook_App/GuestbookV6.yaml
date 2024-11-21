@@ -39,7 +39,7 @@ spec:
       serviceAccountName: serviceaccountgb # Serviceaccount Hinzugefügt.
       containers:
       - name: guestbook 
-        image: 172.17.0.1:5000/v6-nhe # Non-Root Nginx image verwenden.
+        image: 172.17.0.1:5000/v6-nhe:latest # Non-Root Nginx image verwenden.
         ports:
         - containerPort: 8080  # Mit diesem Image muss der Container auf Port 8080 laufen anstatt 80.
 
@@ -75,9 +75,10 @@ spec:
         # ConfigMap wird gemounted
         volumeMounts:
         - name: html
-          mountPath: /usr/share/nginx/html # Pfad musste angepasst werden
+          mountPath: /usr/share/nginx/html/index.html # Pfad musste angepasst werden
+          subPath: index.html
           readOnly: false
-        
+
         # LivenessProbe hinzufügen
         livenessProbe:
           httpGet:
@@ -105,7 +106,7 @@ spec:
       initContainers:
       - name: redis-test
         image: redis:alpine
-        command: ['sh', '-c', 'redis-cli -h redis-service -p 6000 ping | grep PONG']
+        command: ['sh', '-c', 'redis-cli -h redis-service-leader -p 6000 ping | grep PONG']
 
       # Configmap mounten    
       volumes:
