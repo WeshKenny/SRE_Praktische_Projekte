@@ -1,0 +1,119 @@
+##############################
+#    Redis Leader Service    #
+##############################
+
+# Service für redis-leader
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service-leader
+spec:
+  selector:
+    app: redis-leader
+    tier: backend
+  ports:
+    - protocol: TCP
+      port: 6000
+      targetPort: 6379
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-leader
+  labels:
+    usage: forfrontend
+    tier: backend
+    lvl: redis-leader
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: backend
+      app: redis-leader
+  template:
+    metadata:
+      labels:
+        tier: backend
+        app: redis-leader
+    spec:
+      serviceAccountName: backendsa # Service Account hinzufügen
+      containers:
+      - name: redis-leader
+        image: docker.io/redis:6.0.5
+        ports:
+        - containerPort: 6379
+        env: 
+        - name: REDIS_LEADER_SERVICE_HOST
+          value: "redis-service-leader"
+        - name: GET_HOSTS_FROM
+          value: "env"
+
+      - name: redis-dumps
+        image: redis
+        command: ["/bin/sh", "-c"]     # Startet eine Shell und gibt die nächfolgenden Befehle dort ein.
+        # Hier wird alle 60 Sekunden ein Backup erstellt vom Redis-Leader Container
+        args:             
+        - >
+          while true; do
+            sleep 60;  # Zeit zwischen den Dumps
+            redis-cli -h redis-leader -p 6379 SAVE;  # Erstellt einen Dump auf dem Redis-Leader Container
+          done
+
+
+
+
+##############################
+#   Redis Follower Service   #
+##############################
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service-follower
+spec:
+  selector:
+    app: redis-follower
+    tier: backend
+  ports:
+    - protocol: TCP
+      port: 6666
+      targetPort: 6379
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-follower
+  labels:
+    usage: forfrontend
+    tier: backend
+    lvl: redis-follower
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: backend
+      app: redis-follower
+  template:
+    metadata:
+      labels:
+        tier: backend
+        app: redis-follower
+    spec:
+      serviceAccountName: backendsa # Service Account hinzufügen
+      containers:
+      - name: redis-follower
+        image: gcr.io/google_samples/gb-redis-follower:v2
+        ports:
+        - containerPort: 6379
+        env:
+        - name: REDIS_FOLLOWER_SERVICE_HOST
+          value: "redis-service-follower"
+        - name: GET_HOSTS_FROM
+          value: "env"
+          valueFrom:  
+            configMapKeyRef:
+              name: html-configmap
+              key: REDIS_FOLLOWER_SERVICE_HOST
+              
+        

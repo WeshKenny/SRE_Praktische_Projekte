@@ -1,0 +1,116 @@
+# Service für frontend
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service-v6
+spec:
+  type: NodePort
+  selector:
+    app: {{ .Values.frontend.selector.matchLabels.app }}
+    tier: {{ .Values.frontend.metadata.labels.tier }}
+    version: v6
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30030  # port-forward service/frontend-service-v6 [Port-Laptop]:[Port-Container] 8080:30030
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.frontend.metadata.name }}
+  labels:
+    version: {{ .Values.frontend.metadata.labels.version }}
+    tier: {{ .Values.frontend.metadata.labels.tier }}
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: {{ .Values.frontend.metadata.labels.tier }}
+      app: {{ .Values.frontend.selector.matchLabels.app }}
+      version: v6
+  template:
+    metadata:
+      labels:
+        tier: {{ .Values.frontend.metadata.labels.tier }}
+        app: {{ .Values.frontend.selector.matchLabels.app }}
+        version: v6
+    spec:
+      serviceAccountName: serviceaccountgb # Serviceaccount Hinzugefügt.
+      containers:
+      - name: {{ .Values.frontend.containers.containers.name }} 
+        image: "{{ .Values.frontend.containers.image.name }}:{{ .Values.frontend.containers.image.tag }}" # Non-Root Nginx image verwenden.
+        ports:
+        - containerPort: 8080  # Mit diesem Image muss der Container auf Port 8080 laufen anstatt 80.
+
+        # Resource Requirements
+        resources:
+          requests:
+            cpu: {{ .Values.frontend.containers.resources.requests.cpu }}
+            memory: {{ .Values.frontend.containers.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.frontend.containers.resources.limits.cpu }}
+            memory: {{ .Values.frontend.containers.resources.limits.memory }}
+
+        # Enviroment Variabeln hinzugefügt
+        env:
+        - name: {{ .Values.frontend.containers.env.name1 }}
+          value: {{ .Values.frontend.containers.env.value1 }}
+        - name: {{ .Values.frontend.containers.env.name2 }}
+          value: {{ .Values.frontend.containers.env.value2 }}
+        
+        # Enviroment Variabel von Secret hinzufügen
+        - name: Secret
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.frontend.containers.env.valueFrom.secretKeyRef.name }}
+              key: {{ .Values.frontend.containers.env.valueFrom.secretKeyRef.key }}
+
+        # Alle Capabilities werden entfernt
+        securityContext:
+          runAsNonRoot: true
+          capabilities:
+            drop: ["ALL"]
+  
+        # ConfigMap wird gemounted
+        volumeMounts:
+        - name: {{ .Values.frontend.containers.volumeMounts.name }}
+          mountPath: {{ .Values.frontend.containers.volumeMounts.mountPath }} # Pfad musste angepasst werden
+          subPath: {{ .Values.frontend.containers.volumeMounts.subPath }}
+          readOnly: {{ .Values.frontend.containers.volumeMounts.readOnly }}
+
+        # LivenessProbe hinzufügen
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.frontend.containers.livenessProbe.path}}
+            port: {{ .Values.frontend.containers.livenessProbe.port}}
+          initialDelaySeconds: {{ .Values.frontend.containers.livenessProbe.initialDelaySeconds}}
+          periodSeconds: {{ .Values.frontend.containers.livenessProbe.periodSeconds}}
+
+        # Readiness Probes hinzufügen
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.frontend.containers.redinessProbe.port}}
+          initialDelaySeconds: {{ .Values.frontend.containers.redinessProbe.initialDelaySeconds}}
+          periodSeconds: {{ .Values.frontend.containers.redinessProbe.periodSeconds}}
+
+        # Startup Probe Hinzufügen
+        startupProbe:
+          httpGet: 
+            path: {{ .Values.frontend.containers.startupProbe.path}}
+            port: {{ .Values.frontend.containers.startupProbe.port}}
+          failureThreshold: {{ .Values.frontend.containers.startupProbe.failureThreshold}}
+          periodSeconds: {{ .Values.frontend.containers.startupProbe.periodSeconds}}
+         
+      # Init Container hinzufügen
+      initContainers:
+      - name: {{ .Values.frontend.containers.initContainers.name }}
+        image: "{{ .Values.frontend.containers.initContainers.image.name }}:{{ .Values.frontend.containers.initContainers.image.tag }}"
+        command: {{ .Values.frontend.containers.initContainers.command }}
+
+      # Configmap mounten    
+      volumes:
+      - name: {{ .Values.frontend.containers.volumes.name }}
+        configMap:
+          name: {{ .Values.frontend.containers.volumes.configMap.name }}
+        

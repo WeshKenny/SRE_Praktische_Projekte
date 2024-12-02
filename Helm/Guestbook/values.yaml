@@ -1,0 +1,70 @@
+frontend:
+  metadata:
+    name: guestbookapp-v6
+    labels: 
+      tier: frontend
+      version: gesamte-Version-v6
+
+  selector:
+    matchLabels:
+      app: guestbook_app
+  
+  containers:
+    name: guestbook
+    image:
+      name: 172.17.0.1:5000/v6-nhe
+      tag: latest
+
+    resources:
+      requests:
+        cpu: 0.25
+        memory: 500Mi
+      limits:
+        cpu: 0.5
+        memory: 1Gi
+
+    env:
+      name1: Guestbook
+      value1: Das ist die Guestbook version mit allen Aufträgen in einem.
+      name2: Status
+      value2: Die Enviroment Variable funktioniert 
+      valueFrom:
+        secretKeyRef:
+          name: secret-guestbook
+          key: SecretEnv
+    livenessProbe:
+      path: /
+      port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 3
+
+    readinessProbe:
+      port: 8080
+      initialDelaySeconds: 15
+      periodSeconds: 10  
+
+    startupProbe:
+      path: /
+      port: 8080
+      failureThreshold: 15
+      periodSeconds: 10
+
+    volumeMounts:
+      name: html
+      mountPath: /usr/share/nginx/html/index.html
+      subPath: index.html
+      readOnly: true
+
+    volumes:
+      name: html
+      configMap:
+        name: html-configmap
+
+    initContainers:
+      name: redis-test
+      image:
+        name: redis
+        tag: alpine
+      command: ['sh', '-c', 'redis-cli -h redis-service-leader -p 6000 ping | grep PONG']
+
+
