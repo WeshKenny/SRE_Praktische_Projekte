@@ -6,7 +6,6 @@ metadata:
 spec:
   selector:
     app: guestbook_app
-    tier: frontend
     version: v5
   ports:
     - protocol: TCP
@@ -21,16 +20,14 @@ metadata:
     version: v5
     tier: frontend
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      tier: frontend
       app: guestbook_app
       version: v5
   template:
     metadata:
       labels:
-        tier: frontend
         app: guestbook_app
         version: v5
     spec:
@@ -103,7 +100,7 @@ spec:
       initContainers:
       - name: redis-test
         image: redis:alpine
-        command: ['sh', '-c', 'redis-cli -h redis-service -p 6379 ping | grep PONG']
+        command: ['sh', '-c', 'redis-cli -h redis-leader -p 6379 ping | grep PONG']
 
       # Configmap mounten    
       volumes:
