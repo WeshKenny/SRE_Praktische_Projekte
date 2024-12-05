@@ -6,35 +6,30 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis-service-leader
+  name: redis-leader
 spec:
   selector:
     app: redis-leader
-    tier: backend
   ports:
     - protocol: TCP
-      port: 6000
+      port: 6379
       targetPort: 6379
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-leader
+  name: redis-leader
   labels:
-    usage: forfrontend
-    tier: backend
-    lvl: redis-leader
+    app: redis-leader
 spec:
   replicas: 1
   selector:
     matchLabels:
-      tier: backend
       app: redis-leader
   template:
     metadata:
       labels:
-        tier: backend
         app: redis-leader
     spec:
       serviceAccountName: backendsa # Service Account hinzufügen
@@ -43,10 +38,6 @@ spec:
         image: docker.io/redis:6.0.5
         ports:
         - containerPort: 6379
-        env:
-        - name: REDIS_LEADER_SERVICE_HOST
-          value: "redis-leader"
-
 
       - name: redis-dumps
         image: redis
@@ -69,34 +60,29 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis-service-follower
+  name: redis-follower
 spec:
   selector:
     app: redis-follower
-    tier: backend
   ports:
     - protocol: TCP
-      port: 6666
+      port: 6379
       targetPort: 6379
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-follower
+  name: redis-follower
   labels:
-    usage: forfrontend
-    tier: backend
-    lvl: redis-follower
+    app: redis-follower
 spec:
   replicas: 1
   selector:
     matchLabels:
-      tier: backend
       app: redis-follower
   template:
     metadata:
       labels:
-        tier: backend
         app: redis-follower
     spec:
       serviceAccountName: backendsa # Service Account hinzufügen
@@ -105,6 +91,3 @@ spec:
         image: gcr.io/google_samples/gb-redis-follower:v2
         ports:
         - containerPort: 6379
-        env:
-        - name: REDIS_FOLLOWER_SERVICE_HOST
-          value: "redis-follower"
