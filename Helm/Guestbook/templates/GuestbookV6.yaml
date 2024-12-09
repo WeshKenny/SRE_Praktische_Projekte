@@ -13,9 +13,9 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 8080
-      nodePort: 30030  # port-forward service/frontend-service-v6 [Port-Laptop]:[Port-Container] 8080:30030
+      nodePort: {{ .Values.Service.nodePort }}  # port-forward service/frontend-service-v6 [Port-Laptop]:[Port-Container] 8080:30030
 ---
-apiVersion: apps/v1
+apiVersion: apps/v1 
 kind: Deployment
 metadata:
   name: {{ .Values.frontend.metadata.name }}
@@ -38,7 +38,7 @@ spec:
     spec:
       serviceAccountName: serviceaccountgb # Serviceaccount Hinzugefügt.
       containers:
-      - name: {{ .Values.frontend.containers.containers.name }} 
+      - name: {{ .Values.frontend.containers.name }} 
         image: "{{ .Values.frontend.containers.image.name }}:{{ .Values.frontend.containers.image.tag }}" # Non-Root Nginx image verwenden.
         ports:
         - containerPort: 8080  # Mit diesem Image muss der Container auf Port 8080 laufen anstatt 80.
@@ -75,30 +75,30 @@ spec:
         # ConfigMap wird gemounted
         volumeMounts:
         - name: {{ .Values.frontend.containers.volumeMounts.name }}
-          mountPath: {{ .Values.frontend.containers.volumeMounts.mountPath }} # Pfad musste angepasst werden
-          subPath: {{ .Values.frontend.containers.volumeMounts.subPath }}
+          mountPath: /usr/share/nginx/html/index.html # Pfad musste angepasst werden
+          subPath: index.html
           readOnly: {{ .Values.frontend.containers.volumeMounts.readOnly }}
 
         # LivenessProbe hinzufügen
         livenessProbe:
           httpGet:
-            path: {{ .Values.frontend.containers.livenessProbe.path}}
-            port: {{ .Values.frontend.containers.livenessProbe.port}}
+            path: /
+            port: 8080
           initialDelaySeconds: {{ .Values.frontend.containers.livenessProbe.initialDelaySeconds}}
           periodSeconds: {{ .Values.frontend.containers.livenessProbe.periodSeconds}}
 
         # Readiness Probes hinzufügen
         readinessProbe:
           tcpSocket:
-            port: {{ .Values.frontend.containers.redinessProbe.port}}
-          initialDelaySeconds: {{ .Values.frontend.containers.redinessProbe.initialDelaySeconds}}
-          periodSeconds: {{ .Values.frontend.containers.redinessProbe.periodSeconds}}
+            port: 8080
+          initialDelaySeconds: {{ .Values.frontend.containers.readinessProbe.initialDelaySeconds}}
+          periodSeconds: {{ .Values.frontend.containers.readinessProbe.periodSeconds}}
 
         # Startup Probe Hinzufügen
         startupProbe:
           httpGet: 
-            path: {{ .Values.frontend.containers.startupProbe.path}}
-            port: {{ .Values.frontend.containers.startupProbe.port}}
+            path: /
+            port: 8080
           failureThreshold: {{ .Values.frontend.containers.startupProbe.failureThreshold}}
           periodSeconds: {{ .Values.frontend.containers.startupProbe.periodSeconds}}
          
