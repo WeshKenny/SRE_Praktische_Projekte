@@ -1,3 +1,5 @@
+Service:
+  nodePort: 30030
 frontend:
   metadata:
     name: guestbookapp-v6
@@ -33,26 +35,19 @@ frontend:
           name: secret-guestbook
           key: SecretEnv
     livenessProbe:
-      path: /
-      port: 8080
       initialDelaySeconds: 5
       periodSeconds: 3
 
     readinessProbe:
-      port: 8080
       initialDelaySeconds: 15
       periodSeconds: 10  
 
     startupProbe:
-      path: /
-      port: 8080
       failureThreshold: 15
       periodSeconds: 10
 
     volumeMounts:
       name: html
-      mountPath: /usr/share/nginx/html/index.html
-      subPath: index.html
       readOnly: true
 
     volumes:
@@ -66,5 +61,75 @@ frontend:
         name: redis
         tag: alpine
       command: ['sh', '-c', 'redis-cli -h redis-service-leader -p 6000 ping | grep PONG']
+
+leader:
+  name: redis-leader
+  replicas: 1
+  containers:
+    name: redis-dumps
+    command: ["/bin/sh", "-c"] 
+    args: 
+    - >
+          while true; do
+            sleep 60;  # Zeit zwischen den Dumps
+            redis-cli -h redis-leader -p 6379 SAVE;  # Erstellt einen Dump auf dem Redis-Leader Container
+          done
+  
+follower:
+  name: reids-follower
+
+serviceAccounts:
+  creationTimestamp: null
+  backend:
+    label: backend
+    name: backendsa
+
+  frontend:
+    label: frontend
+    name: serviceaccountgb
+
+secret:
+  name: secret-guestbook
+  secretEnv: RGllc2UgVmFyaWFiZWwgc3RhbW10IHZvbiBlaW5lbSBTZWNyZXQ=
+
+configMap:
+  name: html-configmap
+  data:
+    html: | 
+      <html ng-app="redis">
+      <head>
+        <title>Guestbook</title>
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.12/angular.min.js"></script>
+        <script src="controllers.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.6/ui-bootstrap-tpls.js"></script>
+      </head>
+      <body ng-controller="RedisCtrl">
+        <div style="width: 50%; margin-left: 20px">
+          <h2>Guestbook</h2>
+        <form>
+        <fieldset>
+        <input ng-model="msg" placeholder="Messages" class="form-control" type="text" name="input"><br>
+        <button type="button" class="btn btn-primary" ng-click="controller.onRedis()">Submit</button>
+        </fieldset>
+        </form>
+        <div>
+          <div ng-repeat="msg in messages track by $index">
+            {{ "{{" }} msg {{ "}}" }}
+          </div>
+        </div>
+        </div>
+      </body>
+      </html> 
+
+cronJob:
+  name: dbsize
+  schedule: "*/5 * * * *"
+  containers:
+    command: ["sh", "-c", "redis-cli -h redis-service-leader -p 6000 MEMORY STATS"]
+  restart: Never
+
+      
+
 
 

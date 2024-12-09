@@ -6,61 +6,44 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis-service-leader
+  name: {{ .Values.leader.name }}
 spec:
   selector:
-    app: redis-leader
-    tier: backend
+    app: {{ .Values.leader.name }}
   ports:
     - protocol: TCP
-      port: 6000
+      port: 6379
       targetPort: 6379
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-leader
+  name: {{ .Values.leader.name }}
   labels:
-    usage: forfrontend
-    tier: backend
-    lvl: redis-leader
+    app: {{ .Values.leader.name }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.leader.replicas}}
   selector:
     matchLabels:
-      tier: backend
-      app: redis-leader
+      app: {{ .Values.leader.name }}
   template:
     metadata:
       labels:
-        tier: backend
-        app: redis-leader
+        app: {{ .Values.leader.name }}
     spec:
       serviceAccountName: backendsa # Service Account hinzufügen
       containers:
-      - name: redis-leader
+      - name: {{ .Values.leader.name }}
         image: docker.io/redis:6.0.5
         ports:
         - containerPort: 6379
-        env: 
-        - name: REDIS_LEADER_SERVICE_HOST
-          value: "redis-service-leader"
-        - name: GET_HOSTS_FROM
-          value: "env"
 
-      - name: redis-dumps
+      - name: {{ .Values.leader.containers.name }}
         image: redis
-        command: ["/bin/sh", "-c"]     # Startet eine Shell und gibt die nächfolgenden Befehle dort ein.
+        command: {{ .Values.leader.containers.command }}    # Startet eine Shell und gibt die nächfolgenden Befehle dort ein.
         # Hier wird alle 60 Sekunden ein Backup erstellt vom Redis-Leader Container
-        args:             
-        - >
-          while true; do
-            sleep 60;  # Zeit zwischen den Dumps
-            redis-cli -h redis-leader -p 6379 SAVE;  # Erstellt einen Dump auf dem Redis-Leader Container
-          done
-
-
+        args: {{ .Values.leader.containers.args }}
 
 
 ##############################
@@ -70,50 +53,34 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis-service-follower
+  name: redis-follower
 spec:
   selector:
     app: redis-follower
-    tier: backend
   ports:
     - protocol: TCP
-      port: 6666
+      port: 6379
       targetPort: 6379
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-follower
+  name: {{ .Values.follower.name }}
   labels:
-    usage: forfrontend
-    tier: backend
-    lvl: redis-follower
+    app: {{ .Values.follower.name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      tier: backend
-      app: redis-follower
+      app: {{ .Values.follower.name }}
   template:
     metadata:
       labels:
-        tier: backend
-        app: redis-follower
+        app: {{ .Values.follower.name }}
     spec:
       serviceAccountName: backendsa # Service Account hinzufügen
       containers:
-      - name: redis-follower
+      - name: {{ .Values.follower.name }}
         image: gcr.io/google_samples/gb-redis-follower:v2
         ports:
         - containerPort: 6379
-        env:
-        - name: REDIS_FOLLOWER_SERVICE_HOST
-          value: "redis-service-follower"
-        - name: GET_HOSTS_FROM
-          value: "env"
-          valueFrom:  
-            configMapKeyRef:
-              name: html-configmap
-              key: REDIS_FOLLOWER_SERVICE_HOST
-              
-        
