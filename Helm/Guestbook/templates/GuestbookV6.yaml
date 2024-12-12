@@ -23,7 +23,7 @@ metadata:
     version: {{ .Values.frontend.metadata.labels.version }}
     tier: {{ .Values.frontend.metadata.labels.tier }}
 spec:
-  replicas: 3
+  replicas: {{ .Values.frontend.replicas }}
   selector:
     matchLabels:
       tier: {{ .Values.frontend.metadata.labels.tier }}
