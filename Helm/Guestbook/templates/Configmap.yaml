@@ -3,4 +3,5 @@ kind: ConfigMap
 metadata:
   name: html-configmap
 data:
-  index.html: {{ .Values.configMap.data.html}}
+  index.html: |- 
+    {{ .Values.configMap.data.html | indent 4 }}
