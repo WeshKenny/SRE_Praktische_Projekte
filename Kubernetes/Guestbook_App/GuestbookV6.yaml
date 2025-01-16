@@ -23,7 +23,7 @@ metadata:
     version: gesamte-version-v6
     tier: frontend
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       tier: frontend
@@ -106,7 +106,7 @@ spec:
       initContainers:
       - name: redis-test
         image: redis:alpine
-        command: ['sh', '-c', 'redis-cli -h redis-service-leader -p 6000 ping | grep PONG']
+        command: ['sh', '-c', 'redis-cli -h redis-leader -p 6379 ping | grep PONG']
 
       # Configmap mounten    
       volumes:
