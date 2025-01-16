@@ -105,7 +105,7 @@ spec:
       # Init Container hinzufügen
       initContainers:
       - name: {{ .Values.frontend.containers.initContainers.name }}
-        image: "{{ .Values.frontend.containers.initContainers.image.name }}:{{ .Values.frontend.containers.initContainers.image.tag }}"
+        image: {{ .Values.frontend.containers.initContainers.image.name }}
         command: {{ .Values.frontend.containers.initContainers.command }}
 
       # Configmap mounten    
