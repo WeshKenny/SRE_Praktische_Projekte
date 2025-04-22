@@ -106,7 +106,7 @@ spec:
       initContainers:
       - name: {{ .Values.frontend.containers.initContainers.name }}
         image: {{ .Values.frontend.containers.initContainers.image.name }}
-        command: {{ .Values.frontend.containers.initContainers.command }}
+        command: {{ toJson .Values.frontend.containers.initContainers.command }}
 
       # Configmap mounten    
       volumes:

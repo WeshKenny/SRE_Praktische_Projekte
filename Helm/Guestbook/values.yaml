@@ -70,7 +70,11 @@ leader:
   containers:
     name: redis-dumps
     command: ["/bin/sh", "-c"] 
-    args: [while true; do sleep 60; redis-cli -h redis-leader -p 6379 SAVE; done]
+    args: ["while true; do sleep 60; redis-cli -h redis-leader -p 6379 SAVE; done"]
+      
+      #- "while true; do sleep 60; redis-cli -h redis-leader -p 6379 SAVE; done" 
+    
+
 
 follower:
   name: redis-follower

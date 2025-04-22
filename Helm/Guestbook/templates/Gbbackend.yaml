@@ -41,9 +41,9 @@ spec:
 
       - name: {{ .Values.leader.containers.name }}
         image: redis
-        command: {{ .Values.leader.containers.command }}    # Startet eine Shell und gibt die nächfolgenden Befehle dort ein.
-        # Hier wird alle 60 Sekunden ein Backup erstellt vom Redis-Leader Container
-        args: {{ .Values.leader.containers.args }}
+        command: {{ toJson .Values.leader.containers.command }}  # Startet eine Shell und gibt die nächfolgenden Befehle dort ein.
+        # Hier wird alle 60 Sekunden ein Backup erstellt vom Redis-Leader Container 
+        args: {{ toJson .Values.leader.containers.args }}
 
 
 ##############################

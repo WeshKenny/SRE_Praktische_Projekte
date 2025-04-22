@@ -11,5 +11,5 @@ spec:
           containers:
           - name: {{ .Values.cronJob.name }}
             image: redis:alpine
-            command: {{ .Values.cronJob.containers.command }}
+            command: {{ toJson .Values.cronJob.containers.command }}
           restartPolicy: {{ .Values.cronJob.restart }}
